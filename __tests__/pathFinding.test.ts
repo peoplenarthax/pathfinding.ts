@@ -70,6 +70,18 @@ describe('test path finding', () => {
         },
         {
             grid: grid_A,
+            startPoint: { x: 2, y: 0 },
+            endPoint: { x: 4, y: 4 },
+            maxJumpCost: 10,
+            path: [
+                { x: 2, y: 0 },
+                { x: 0, y: 0 },
+                { x: 0, y: 4 },
+                { x: 4, y: 4 },
+            ],
+        },
+        {
+            grid: grid_A,
             startPoint: { x: 4, y: 1 },
             endPoint: { x: 4, y: 2 },
             maxJump: 5,
