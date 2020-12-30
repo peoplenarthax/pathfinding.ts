@@ -52,6 +52,41 @@ describe('test path finding', () => {
             maxJumpCost: 1,
             path: [],
         },
+        {
+            startPoint: { x: 4, y: 1 },
+            endPoint: { x: 4, y: 2 },
+            maxJump: 5,
+            path: [
+                { x: 4, y: 1 },
+                { x: 4, y: 0 },
+                { x: 0, y: 0 },
+                { x: 0, y: 4 },
+                { x: 4, y: 4 },
+                { x: 4, y: 2 },
+            ],
+        },
+        {
+            startPoint: { x: 0, y: 1 },
+            endPoint: { x: 4, y: 3 },
+            maxJump: 5,
+            path: [
+                { x: 0, y: 1 },
+                { x: 0, y: 4 },
+                { x: 4, y: 4 },
+                { x: 4, y: 3 },
+            ],
+        },
+        {
+            startPoint: { x: 4, y: 3 },
+            endPoint: { x: 0, y: 1},
+            maxJumpCost: 5,
+            path: [
+                { x: 4, y: 3},
+                { x: 4, y: 4 },
+                { x: 0, y: 4 },
+                { x: 0, y: 1 }
+            ],
+        },
     ] as {
         startPoint: PointInterface;
         endPoint: PointInterface;
@@ -61,7 +96,7 @@ describe('test path finding', () => {
 
     testCases.forEach(
         ({ startPoint, endPoint, maxJumpCost, path: expectedPath }) => {
-            it(`validates pathfinding for jumpCost  ${maxJumpCost}`, () => {
+            it(`validates pathfinding from ${Object.values(endPoint)} to ${Object.values(startPoint)} with jumpCost ${maxJumpCost}`, () => {
                 const path = grid.findPath(startPoint, endPoint, maxJumpCost);
                 expect(path).toEqual(expectedPath);
             });
