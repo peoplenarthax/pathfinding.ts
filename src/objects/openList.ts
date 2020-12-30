@@ -1,25 +1,80 @@
-import {Node} from "./node";
+import {CompFn, ListNode} from "./openList.types";
 
-export class OpenList {
+export class OpenList<T> {
 
-    private list: Node[];
+    private start: ListNode<T> | null;
+    private end: ListNode<T> | null;
 
-    constructor() {
-        this.list = [];
+    private readonly comparator: CompFn<T>;
+
+    constructor(comparator: CompFn<T>) {
+        this.start = null;
+        this.end = null;
+        this.comparator = comparator;
     }
 
-    push(node: Node) {
-        this.list.push(node);
+    push(value: T) {
+        if (this.start === null) {
+            // List is empty
+            this.start = {
+                value,
+                prev: null,
+                next: null
+            };
+            this.end = this.start;
+            return;
+        }
+
+        // Find the position to insert into
+        let aux: ListNode<T> | null = this.start;
+        while (aux !== null && this.comparator(aux.value, value) > 0) {
+            aux = aux.next;
+        }
+
+        if (aux === null) {
+            // Inserting at the end
+            const newNode = {
+                value,
+                prev:
+                this.end,
+                next: null
+            };
+            if(this.end)
+                this.end.next = newNode;
+            this.end = newNode;
+            return;
+        }
+
+        const left = aux.prev;
+        const right = aux;
+
+        const newNode: ListNode<T> = {value, prev: left, next: right};
+
+        right.prev = newNode;
+        if (left === null) {
+            // This means aux is the first node (this.start)
+            this.start = newNode;
+        } else {
+            left.next = newNode;
+        }
     }
 
-    pop(): Node {
-        const poppedNode = this.list.sort((nodeA, nodeB) => nodeA.f - nodeB.f)[0];
-        this.list = this.list.filter(node => poppedNode !== node);
-        return poppedNode;
+    pop(): T | null {
+        if (this.empty())
+            throw ReferenceError("popping from an empty list");
+
+        const popped = this.end;
+        this.end = popped?.prev as (ListNode<T> | null);
+        if (this.end === null) {
+            this.start = null;
+        } else {
+            this.end.next = null;
+        }
+        return popped?.value || null;
     }
 
     empty(): boolean {
-        return this.list.length === 0;
+        return this.start === null;
     }
 
 }

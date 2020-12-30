@@ -12,16 +12,16 @@ export const findPath = (
     grid: Grid
 ): PointInterface[] => {
 
-    const openList: OpenList = new OpenList();
+    const openList: OpenList<Node> = new OpenList<Node>(
+        (nodeA, nodeB) => nodeA.totalCost - nodeB.totalCost);
     const startNode: Node | null = grid.getNode(startPoint);
     const endNode: Node | null = grid.getNode(endPoint);
 
-    if (startNode === null) {
+    if (startNode === null)
         throw ReferenceError('startNode does not exist in the grid');
-    }
-    if (endNode === null) {
+
+    if (endNode === null)
         throw ReferenceError('endNode does not exist in the grid');
-    }
 
     startNode.opened = true;
     openList.push(startNode);
@@ -87,18 +87,18 @@ export const findPath = (
             if(jumpAverageCost > maxJumpCost)
                 return;
 
-            const ng = (node.g + distance) * neighbor.cost;
+            const estimatedDistance = (node.distanceFromStart + distance) * neighbor.cost;
 
-            if(jumpNode.opened && ng >= jumpNode.g) return;
+            if(jumpNode.opened && estimatedDistance >= jumpNode.distanceFromStart) return;
 
             const { point: endNodePoint } = endNode;
 
-            jumpNode.g = ng;
-            jumpNode.h = jumpNode.h || HeuristicUtils.DrManhattan(
+            jumpNode.distanceFromStart = estimatedDistance;
+            jumpNode.heuristicDistance = jumpNode.heuristicDistance || HeuristicUtils.DrManhattan(
                 Math.abs(jumpNodePoint.x - endNodePoint.x),
                 Math.abs(jumpNodePoint.y - endNodePoint.y)
             );
-            jumpNode.f = jumpNode.g + jumpNode.h;
+            jumpNode.totalCost = jumpNode.distanceFromStart + jumpNode.heuristicDistance;
             jumpNode.parent = node;
 
             if(!jumpNode.opened) {
@@ -117,12 +117,9 @@ export const findPath = (
     ) => {
         return directions.reduce((acc: Node[], direction: [number, number]) => {
             const node = grid.getNode(reference.copy(...direction));
-            if (node && node.cost > 0) {
-                return [...acc, node];
-            }
-        return acc;
-    }, []);
-};
+            return (node && node.cost > 0) ? [...acc, node] : acc;
+        }, []);
+    };
     const findNeighbors = (node: Node): Node[] => {
 
         const { parent, point: nodePoint } = node;
@@ -148,7 +145,6 @@ export const findPath = (
 
             return getNeighborsByDirection(xDirections, nodePoint, grid);
         }
-
 
         if(normalizedPoint.y !== 0) {
             const xDirections = [
